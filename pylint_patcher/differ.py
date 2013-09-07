@@ -51,6 +51,7 @@ class Differ(object):
         finally:
             os.chdir(cwd)
 
+        self._remove_timestamps(patchfile)
         if returncode > 1:
             raise ValueError("diff command returned code %d" % returncode)
 
@@ -77,6 +78,22 @@ class Differ(object):
             comment = " " + self.DISABLE_MSGS + message_code
 
         return line[:insert_pos] + comment + line[insert_pos:]
+
+    def _remove_timestamps(self, patchfile):
+        """ Remove all timestamps from the patchfile headers """
+        pattern1 = "--- %s/" % self._temp_original_dirname
+        pattern2 = "+++ %s/" % self._temp_patched_dirname
+
+        lines = open(patchfile).readlines()
+        with open(patchfile, "w") as output:
+            for line in lines:
+                split = line.split("\t")
+                if len(split) == 2:
+                    if (split[0].startswith(pattern1) or
+                        split[0].startswith(pattern2)):
+                        line = split[0] + "\n"
+
+                output.write(line)
 
     def cleanup(self):
         if os.path.exists(self._temp_path):
