@@ -9,4 +9,4 @@ after_script:
   # Run pylint-patcher on itself
   # (for information only, any errors don't affect the Travis result)
   - ./setup.py install
-  - pylint-patcher pylint_patcher
+  - pylint-patcher pylint_patcher --ignore=external
