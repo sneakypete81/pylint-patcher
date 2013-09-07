@@ -21,13 +21,16 @@ import re
 import Queue
 from threading import Thread
 from Tkinter import (Tk, Frame, Listbox, Entry, Label, Button, Scrollbar,
-                     Checkbutton, Radiobutton, IntVar, StringVar)
+                     Checkbutton, Radiobutton, Menu, IntVar, StringVar)
 from Tkinter import (TOP, LEFT, RIGHT, BOTTOM, END, X, Y, BOTH, SUNKEN, W,
                      HORIZONTAL, DISABLED, NORMAL, W)
 from tkFileDialog import askopenfilename, askdirectory
 
+import astroid
 import pylint.lint
 from pylint.reporters.guireporter import GUIReporter
+import pylint_patcher
+from pylint_patcher.differ import Differ
 
 HOME = os.path.expanduser('~/')
 HISTORY = '.pylint-gui-history'
@@ -39,10 +42,10 @@ COLORS = {'(I)':'lightblue',
 
 def convert_to_string(msg):
     """make a string representation of a message"""
-    if (msg[4] != ""):
-        return "(" + msg[0] + ") " + msg[3] + "." + msg[4] + " [" + msg[5] + "]: " + msg[6]
-    else:
-        return "(" + msg[0] + ") " + msg[3] + " [" + msg[5] + "]: " + msg[6]
+    module_object = msg.module
+    if msg.obj:
+        module_object += ".%s" % msg.obj
+    return "(%s) %s [%d]: %s" % (msg.C, module_object, msg.line, msg.msg)
 
 class BasicStream(object):
     '''
@@ -125,6 +128,7 @@ class LintGui(object):
         self.rating = StringVar()
         self.tabs = {}
         self.report_stream = BasicStream(self)
+        self.differ = Differ()
         #gui objects
         self.lbMessages = None
         self.showhistory = None
@@ -179,6 +183,14 @@ class LintGui(object):
         self.lbMessages.pack(expand=True, fill=BOTH)
         rightscrollbar.config(command=self.lbMessages.yview)
         bottomscrollbar.config(command=self.lbMessages.xview)
+
+        #Message context menu
+        self.mnMessages = Menu(self.lbMessages, tearoff=0)
+        self.mnMessages.add_command(label="View in sourcefile",
+                                    command=self.show_sourcefile)
+        self.mnMessages.add_command(label="Add to ignore patchfile",
+                                    command=self.add_to_ignore_patchfile)
+        self.lbMessages.bind("<Button-3>", self.show_messages_context)
 
         #History ListBoxes
         rightscrollbar2 = Scrollbar(history_frame)
@@ -327,12 +339,7 @@ class LintGui(object):
         self.lbMessages.delete(0, END)
         self.visible_msgs = []
         for msg in self.msgs:
-
-            # Obtaining message type (pylint's '--include-ids' appends the
-            # ID to this letter, so 1 character long is not guaranteed)
-            msg_type = msg[0][0]
-
-            if (self.msg_type_dict.get(msg_type)()):
+            if (self.msg_type_dict.get(msg.C)()):
                 self.visible_msgs.append(msg)
                 msg_str = convert_to_string(msg)
                 self.lbMessages.insert(END, msg_str)
@@ -361,12 +368,8 @@ class LintGui(object):
                 #adding message to list of msgs
                 self.msgs.append(msg)
 
-                # Obtaining message type (pylint's '--include-ids' appends the
-                # ID to this letter, so 1 character long is not guaranteed)
-                msg_type = msg[0][0]
-
                 #displaying msg if message type is selected in check box
-                if (self.msg_type_dict.get(msg_type)()):
+                if (self.msg_type_dict.get(msg.C)()):
                     self.visible_msgs.append(msg)
                     msg_str = convert_to_string(msg)
                     self.lbMessages.insert(END, msg_str)
@@ -478,24 +481,48 @@ class LintGui(object):
             return
 
         msg = self.visible_msgs[int(selected[0])]
-        filename = msg[2]
-        fileline = int(msg[5])
-
-        scroll = fileline - 3
+        scroll = msg.line - 3
         if scroll < 0:
             scroll = 0
 
-        self.tabs["Source File"] = open(filename, "r").readlines()
+        self.tabs["Source File"] = open(msg.path, "r").readlines()
         self.box.set("Source File")
         self.refresh_results_window()
         self.results.yview(scroll)
-        self.results.select_set(fileline - 1)
+        self.results.select_set(msg.line - 1)
+
+    def show_messages_context(self, event):
+        """Show the message listbox's context menu"""
+        # Select the item that was clicked
+        index = self.lbMessages.nearest(event.y)
+        self.lbMessages.selection_clear(0, END);
+        self.lbMessages.selection_set(index)
+        self.lbMessages.activate(index)
+
+        self.mnMessages.tk_popup(event.x_root, event.y_root)
+
+    def add_to_ignore_patchfile(self, event=None):
+        selected = self.lbMessages.curselection()
+        if not selected:
+            return
+
+        selected_index = int(selected[0])
+        msg = self.visible_msgs[selected_index]
+        self.differ.add_ignore_patch(msg.path, msg.line, msg.symbol)
+        self.differ.diff()
+
+        del self.msgs[self.msgs.index(msg)]
+        del self.visible_msgs[selected_index]
+        self.lbMessages.delete(selected_index)
 
 
 def lint_thread(module, reporter, gui):
     """thread for pylint"""
     gui.status.text = "processing module(s)"
-    pylint.lint.Run(args=[module], reporter=reporter, exit=False)
+    gui.differ.setup(module)
+    # Ensure that any changed files are re-read from disk
+    astroid.builder.MANAGER.astroid_cache.clear()
+    pylint_patcher.main.main(args=[module], reporter=reporter, exit=False)
     gui.msg_queue.put("DONE")
 
 
@@ -506,6 +533,7 @@ def Run(args):
         sys.exit(1)
     gui = LintGui()
     gui.mainloop()
+    gui.differ.cleanup()
     sys.exit(0)
 
 if __name__ == '__main__':

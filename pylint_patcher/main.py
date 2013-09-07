@@ -18,7 +18,7 @@ def main(args=sys.argv[1:], **kwds):
         return
 
     # Apply the ignore patchfile before linting
-    patcher = pylint_patcher.Patcher(args[0])
+    patcher = pylint_patcher.patcher.Patcher(args[0])
     patcher.patch()
     try:
         pylint.lint.Run(args, **kwds)

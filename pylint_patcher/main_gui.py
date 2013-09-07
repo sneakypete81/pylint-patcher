@@ -3,7 +3,7 @@
 main-gui.py : Pylint Patcher GUI
 """
 import sys
-from .external.pylint import gui
+from pylint_patcher.external.pylint import gui
 
 def main(args=sys.argv[1:]):
     """
