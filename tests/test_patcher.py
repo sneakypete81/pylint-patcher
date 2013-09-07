@@ -16,7 +16,7 @@ class Patcher(unittest.TestCase):
 
         self.test_file = os.path.join(self.temp_path, "dummy_module.py")
         self.patch_file = os.path.join(self.temp_path, pylint_patcher.PATCHFILENAME)
-        self.patched_file = os.path.join(self.temp_path, "dummy_module.patched.py")
+        self.patched_file = os.path.join(self.temp_path, "dummy_module_patched.py")
 
     def tearDown(self):
         """Remove the temporary test data"""
