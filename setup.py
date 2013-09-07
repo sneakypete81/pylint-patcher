@@ -7,6 +7,7 @@ requires = ["pylint"]
 console_script = """
 [console_scripts]
 pylint-patcher = pylint_patcher.main:main
+pylint-patcher-gui = pylint_patcher.main_gui:main
 """
 
 # from pylint_patcher._version import __version__
@@ -25,6 +26,7 @@ setuptools.setup(name='pylint-patcher',
       url="https://github.com/sneakypete81/pylint-patcher",
       packages=["pylint_patcher"],
       keywords=["pylint-patcher", "pylint_patcher", "pylint",
+                "pylint-patcher-gui", "pylint_patcher_gui",
                 "patch", "patchfile"],
       classifiers=["Development Status :: 4 - Beta",
                    "Intended Audience :: Developers",
