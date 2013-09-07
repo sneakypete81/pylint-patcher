@@ -3,7 +3,7 @@ language: python
 install:
  - pip install pylint
 
-script: python -m unittest discover tests
+script: ./setup.py test
 
 after_script:
   # Run pylint-patcher on itself
