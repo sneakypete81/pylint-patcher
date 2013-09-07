@@ -12,6 +12,11 @@ def main(args=sys.argv[1:]):
     then run the linter,
     then revert the patchfile changes.
     """
+    if args == []:
+        # Print the Pylint usage docs
+        pylint.lint.Run(args)
+        return
+
     # Apply the ignore patchfile before linting
     patcher = pylint_patcher.Patcher(args[0])
     patcher.patch()
