@@ -1,6 +1,6 @@
 language: python
 
-script: setup.py test
+script: ./setup.py test
 
 after_script:
   # Run Pylint
