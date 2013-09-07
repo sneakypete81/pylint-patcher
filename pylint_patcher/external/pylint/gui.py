@@ -30,7 +30,6 @@ import astroid
 import pylint.lint
 from pylint.reporters.guireporter import GUIReporter
 import pylint_patcher
-from pylint_patcher.differ import Differ
 
 HOME = os.path.expanduser('~/')
 HISTORY = '.pylint-gui-history'
@@ -128,7 +127,7 @@ class LintGui(object):
         self.rating = StringVar()
         self.tabs = {}
         self.report_stream = BasicStream(self)
-        self.differ = Differ()
+        self.differ = pylint_patcher.differ.Differ()
         #gui objects
         self.lbMessages = None
         self.showhistory = None
@@ -485,7 +484,7 @@ class LintGui(object):
         if scroll < 0:
             scroll = 0
 
-        self.tabs["Source File"] = open(msg.path, "r").readlines()
+        self.tabs["Source File"] = open(msg.abspath, "r").readlines()
         self.box.set("Source File")
         self.refresh_results_window()
         self.results.yview(scroll)
@@ -502,13 +501,17 @@ class LintGui(object):
         self.mnMessages.tk_popup(event.x_root, event.y_root)
 
     def add_to_ignore_patchfile(self, event=None):
+        """
+        Add the selected message to the patchfile.
+        This means that this message will now be ignored by pylint-patcher.
+        """
         selected = self.lbMessages.curselection()
         if not selected:
             return
 
         selected_index = int(selected[0])
         msg = self.visible_msgs[selected_index]
-        self.differ.add_ignore_patch(msg.path, msg.line, msg.symbol)
+        self.differ.add_ignore_patch(msg.abspath, msg.line, msg.symbol)
         self.differ.diff()
 
         del self.msgs[self.msgs.index(msg)]
