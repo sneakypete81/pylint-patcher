@@ -1,6 +1,6 @@
 language: python
 
-script: ./setup.py test
+script: python -m unittest discover tests
 
 after_script:
   # Run Pylint
