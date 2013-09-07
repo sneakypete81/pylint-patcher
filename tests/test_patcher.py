@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 
-import pylint_patcher
+from pylint_patcher import PATCHFILENAME, patcher
 from tests.data import dummy_module
 
 class Patcher(unittest.TestCase):
@@ -15,7 +15,7 @@ class Patcher(unittest.TestCase):
         shutil.copytree(data_path, self.temp_path)
 
         self.test_file = os.path.join(self.temp_path, "dummy_module.py")
-        self.patch_file = os.path.join(self.temp_path, pylint_patcher.PATCHFILENAME)
+        self.patch_file = os.path.join(self.temp_path, PATCHFILENAME)
         self.patched_file = os.path.join(self.temp_path, "dummy_module_patched.py")
 
     def tearDown(self):
@@ -25,11 +25,11 @@ class Patcher(unittest.TestCase):
 
     def test_no_patchfile_returns_false(self):
         os.remove(self.patch_file)
-        self.assertFalse(pylint_patcher.patcher.Patcher(self.test_file).patch())
-        self.assertFalse(pylint_patcher.patcher.Patcher(self.patched_file).unpatch())
+        self.assertFalse(patcher.Patcher(self.test_file).patch())
+        self.assertFalse(patcher.Patcher(self.patched_file).unpatch())
 
     def test_patcher(self):
-        self.assertTrue(pylint_patcher.patcher.Patcher(self.test_file).patch())
+        self.assertTrue(patcher.Patcher(self.test_file).patch())
         self.assertEqual(open(self.test_file).read(),
                          open(self.patched_file).read())
 
@@ -38,8 +38,8 @@ class Patcher(unittest.TestCase):
         test_file_backup = os.path.join(self.temp_path, "backup.py")
         shutil.copy(self.test_file, test_file_backup)
 
-        patcher = pylint_patcher.patcher.Patcher(self.test_file)
-        self.assertTrue(patcher.patch())
-        self.assertTrue(patcher.unpatch())
+        patch = patcher.Patcher(self.test_file)
+        self.assertTrue(patch.patch())
+        self.assertTrue(patch.unpatch())
         self.assertEqual(open(self.test_file).read(),
                          open(test_file_backup).read())

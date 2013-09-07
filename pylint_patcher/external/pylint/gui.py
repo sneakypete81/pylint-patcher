@@ -29,7 +29,7 @@ from tkFileDialog import askopenfilename, askdirectory
 import astroid
 import pylint.lint
 from pylint.reporters.guireporter import GUIReporter
-import pylint_patcher
+from pylint_patcher import main, differ
 
 HOME = os.path.expanduser('~/')
 HISTORY = '.pylint-gui-history'
@@ -127,7 +127,7 @@ class LintGui(object):
         self.rating = StringVar()
         self.tabs = {}
         self.report_stream = BasicStream(self)
-        self.differ = pylint_patcher.differ.Differ()
+        self.differ = differ.Differ()
         #gui objects
         self.lbMessages = None
         self.showhistory = None
@@ -525,7 +525,7 @@ def lint_thread(module, reporter, gui):
     gui.differ.setup(module)
     # Ensure that any changed files are re-read from disk
     astroid.builder.MANAGER.astroid_cache.clear()
-    pylint_patcher.main.main(args=[module], reporter=reporter, exit=False)
+    main.main(args=[module], reporter=reporter, exit=False)
     gui.msg_queue.put("DONE")
 
 

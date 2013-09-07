@@ -4,7 +4,7 @@ main.py : Pylint Patcher main console script
 """
 import sys
 import pylint.lint
-import pylint_patcher
+from pylint_patcher import patcher
 
 def main(args=sys.argv[1:], **kwds):
     """
@@ -18,13 +18,13 @@ def main(args=sys.argv[1:], **kwds):
         return
 
     # Apply the ignore patchfile before linting
-    patcher = pylint_patcher.patcher.Patcher(args[0])
-    patcher.patch()
+    patch = patcher.Patcher(args[0])
+    patch.patch()
     try:
         pylint.lint.Run(args, **kwds)
     finally:
         # Revert the ignore patchfile
-        patcher.unpatch()
+        patch.unpatch()
 
 if __name__ == "__main__": # pragma: no cover
     main()
