@@ -1,0 +1,8 @@
+language: python
+
+script: setup.py test
+
+after_script:
+  # Run Pylint
+  # (for information only, any errors don't affect the Travis result)
+  - pylint-patcher pylint_patcher
