@@ -1,0 +1,8 @@
+--- original/dummy_module.py	2013-06-12 08:26:22.861900872 +0100
++++ patched/dummy_module.patched.py	2013-06-12 08:28:32.237905299 +0100
+@@ -5,4 +5,4 @@
+ def func1():
+     """docstring"""
+     return 1
+-    print 'unreachable'
++    print 'unreachable' # pylint: disable=W0101
