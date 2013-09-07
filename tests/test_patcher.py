@@ -25,11 +25,11 @@ class Patcher(unittest.TestCase):
 
     def test_no_patchfile_returns_false(self):
         os.remove(self.patch_file)
-        self.assertFalse(pylint_patcher.Patcher(self.test_file).patch())
-        self.assertFalse(pylint_patcher.Patcher(self.patched_file).unpatch())
+        self.assertFalse(pylint_patcher.patcher.Patcher(self.test_file).patch())
+        self.assertFalse(pylint_patcher.patcher.Patcher(self.patched_file).unpatch())
 
     def test_patcher(self):
-        self.assertTrue(pylint_patcher.Patcher(self.test_file).patch())
+        self.assertTrue(pylint_patcher.patcher.Patcher(self.test_file).patch())
         self.assertEqual(open(self.test_file).read(),
                          open(self.patched_file).read())
 
@@ -38,7 +38,7 @@ class Patcher(unittest.TestCase):
         test_file_backup = os.path.join(self.temp_path, "backup.py")
         shutil.copy(self.test_file, test_file_backup)
 
-        patcher = pylint_patcher.Patcher(self.test_file)
+        patcher = pylint_patcher.patcher.Patcher(self.test_file)
         self.assertTrue(patcher.patch())
         self.assertTrue(patcher.unpatch())
         self.assertEqual(open(self.test_file).read(),
