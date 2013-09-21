@@ -6,4 +6,4 @@ diff --unified --recursive '--exclude=.pylint-disable.patch' original/dummy_modu
      """docstring"""
      return 1
 -    print 'unreachable'
-+    print 'unreachable' # pylint: disable=W0101
++    print 'unreachable' # pylint: disable=Test123,W0101

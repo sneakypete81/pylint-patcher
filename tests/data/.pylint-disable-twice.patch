@@ -1,7 +1,12 @@
 diff --unified --recursive '--exclude=.pylint-disable.patch' original/dummy_module.py patched/dummy_module.py
 --- original/dummy_module.py
 +++ patched/dummy_module.py
-@@ -5,4 +5,4 @@
+@@ -1,8 +1,8 @@
+ """docstring"""
+ 
+-__revision__ = ''
++__revision__ = '' # pylint: disable=Test123
+ 
  def func1():
      """docstring"""
      return 1
