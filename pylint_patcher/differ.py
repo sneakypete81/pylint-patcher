@@ -9,9 +9,10 @@ import fileinput
 import pylint_patcher.patcher
 from . import utils
 
-class Differ(object):
-    DISABLE_MSGS = "# pylint: disable="
+_DISABLE_MSGS = "# pylint: disable=" # pylint: disable=bad-option-value
 
+class Differ(object):
+    """Perform diff operations, and insert disable pragmas"""
     def __init__(self):
         self._target = None
         self._source_path = None
@@ -38,7 +39,8 @@ class Differ(object):
 
     def diff(self):
         """Create a patchfile from the "patched" temporary copy's changes."""
-        patchfile = os.path.join(self._source_path, pylint_patcher.PATCHFILENAME)
+        patchfile = os.path.join(self._source_path,
+                                 pylint_patcher.PATCHFILENAME)
 
         cwd = os.getcwd()
         os.chdir(self._temp_path)
@@ -56,6 +58,10 @@ class Differ(object):
             raise ValueError("diff command returned code %d" % returncode)
 
     def add_ignore_patch(self, filepath, fileline, message_code):
+        """
+        Add a "Pylint disable" comment to the specified file line of the
+        "patched" temporary copy.
+        """
         if not filepath.startswith(self._source_path):
             raise ValueError("File %s is not inside %s" %
                              (filepath, self._source_path))
@@ -69,18 +75,20 @@ class Differ(object):
             sys.stdout.write(line)
         fileinput.close()
 
-    def _insert_comment(self, line, message_code):
-        if self.DISABLE_MSGS in line:
-            insert_pos = line.rfind(self.DISABLE_MSGS) + len(self.DISABLE_MSGS)
+    @staticmethod
+    def _insert_comment(line, message_code):
+        """ Add a "Pylint disable" comment to the line """
+        if _DISABLE_MSGS in line:
+            insert_pos = line.rfind(_DISABLE_MSGS) + len(_DISABLE_MSGS)
             comment = message_code + ","
         else:
             insert_pos = len(line.rstrip("\r\n"))
-            comment = " " + self.DISABLE_MSGS + message_code
+            comment = " " + _DISABLE_MSGS + message_code
 
         return line[:insert_pos] + comment + line[insert_pos:]
 
     def _remove_timestamps(self, patchfile):
-        """ Remove all timestamps from the patchfile headers """
+        """Remove all timestamps from the patchfile headers"""
         pattern1 = "--- %s/" % self._temp_original_dirname
         pattern2 = "+++ %s/" % self._temp_patched_dirname
 
@@ -96,5 +104,6 @@ class Differ(object):
                 output.write(line)
 
     def cleanup(self):
+        """Remove all temporary files & directories"""
         if os.path.exists(self._temp_path):
             shutil.rmtree(self._temp_path)
