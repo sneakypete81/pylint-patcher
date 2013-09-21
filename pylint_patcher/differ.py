@@ -12,7 +12,29 @@ from . import utils
 _DISABLE_MSGS = "# pylint: disable=" # pylint: disable=bad-option-value
 
 class Differ(object):
-    """Perform diff operations, and insert disable pragmas"""
+    """
+    Perform diff operations, and insert "Pylint disable" pragmas.
+    Usage:
+        # First set up the differ. This creates:
+        #    original_path: a temporary copy of the original target
+        #    patched_path:  a temporary copy of the target with any
+        #                   existing patchfile applied
+
+        diff = Differ()
+        diff.setup(file_or_module)
+
+        # Now add a new "Pylint disable" pragma to a file in patched_path:
+
+        diff.add_disable_pragma(filepath, fileline, message_code)
+
+        # Now create an updated patchfile:
+
+        diff.diff()
+
+        # Finally, clean up the temporary directories:
+
+        diff.cleanup()
+"""
     def __init__(self):
         self._target = None
         self._source_path = None
@@ -32,7 +54,6 @@ class Differ(object):
         self.cleanup()
         self._target = file_or_module
         self._source_path = utils.get_path_containing(file_or_module)
-        self.cleanup()
         shutil.copytree(self._source_path, self._temp_original_path)
         shutil.copytree(self._source_path, self._temp_patched_path)
         pylint_patcher.patcher.Patcher(self._temp_patched_path).patch()
@@ -57,9 +78,9 @@ class Differ(object):
         if returncode > 1:
             raise ValueError("diff command returned code %d" % returncode)
 
-    def add_ignore_patch(self, filepath, fileline, message_code):
+    def add_disable_pragma(self, filepath, fileline, message_code):
         """
-        Add a "Pylint disable" comment to the specified file line of the
+        Add a "Pylint disable" pragma to the specified file line of the
         "patched" temporary copy.
         """
         if not filepath.startswith(self._source_path):

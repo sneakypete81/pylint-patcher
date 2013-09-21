@@ -502,7 +502,7 @@ class LintGui(object):
 
     def add_to_ignore_patchfile(self, event=None):
         """
-        Add the selected message to the patchfile.
+        Add the selected message to the ignore patchfile.
         This means that this message will now be ignored by pylint-patcher.
         """
         selected = self.lbMessages.curselection()
@@ -511,7 +511,7 @@ class LintGui(object):
 
         selected_index = int(selected[0])
         msg = self.visible_msgs[selected_index]
-        self.differ.add_ignore_patch(msg.abspath, msg.line, msg.symbol)
+        self.differ.add_disable_pragma(msg.abspath, msg.line, msg.symbol)
         self.differ.diff()
 
         del self.msgs[self.msgs.index(msg)]
