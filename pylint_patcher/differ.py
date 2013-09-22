@@ -83,6 +83,8 @@ class Differ(object):
         Add a "Pylint disable" pragma to the specified file line of the
         "patched" temporary copy.
         """
+        # Normalise the filepath and check that it's valid
+        filepath = os.path.normpath(filepath)
         if not filepath.startswith(self._source_path):
             raise ValueError("File %s is not inside %s" %
                              (filepath, self._source_path))

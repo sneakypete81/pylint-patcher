@@ -81,3 +81,18 @@ class Differ(unittest.TestCase):
                                      ".pylint-disable-sameline.patch")
         self.assertEqual(open(self.patch_file).read(),
                          open(expected_file).read())
+
+    def test_disable_pragma_with_invalid_path(self):
+        """
+        Check that an exception is raised if a disable pragma is
+        inserted on a file outside of the target directory.
+        """
+        diff = differ.Differ()
+        try:
+            diff.setup(self.test_file)
+            invalid_file = os.path.join(self.temp_path, os.pardir)
+            with self.assertRaises(ValueError):
+                diff.add_disable_pragma(invalid_file, 8, "Test123")
+        finally:
+            diff.cleanup()
+
