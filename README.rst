@@ -35,7 +35,7 @@ Usage
 ========================
 Running Pylint Patcher
 ------------------------
-**Pylint Patcher** is run in exactly the same manner as Pylint. It accepts all the same arguments:
+**Pylint Patcher** is run in exactly the same manner as Pylint. It accepts all the same arguments::
 
     pylint-patcher path/to/package_or_module
 
