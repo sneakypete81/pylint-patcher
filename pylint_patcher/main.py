@@ -13,7 +13,7 @@ class ArgumentParser(argparse.ArgumentParser):
         """Override the error handler to ignore all errors"""
         pass
 
-def main(args=sys.argv[1:]):
+def main(args=sys.argv[1:], **kwds):
     """
     Apply the patchfile containing the pylint ignores,
     then run the linter,
@@ -26,14 +26,14 @@ def main(args=sys.argv[1:]):
 
     if parsed_args.target is None:
         # No target, so just print the Pylint usage docs
-        pylint.lint.Run(args)
+        pylint.lint.Run(args, **kwds)
         return
 
     # Apply the ignore patchfile before linting
     patch = patcher.Patcher(parsed_args.target)
     patch.patch()
     try:
-        pylint.lint.Run(args)
+        pylint.lint.Run(args, **kwds)
     finally:
         # Revert the ignore patchfile
         patch.unpatch()

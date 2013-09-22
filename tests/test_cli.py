@@ -35,3 +35,13 @@ class Cli(unittest.TestCase):
         pylint_patcher.main.main(["target", "--option"])
         mock_run.assert_called_with(["target", "--option"])
         mock_patcher.assert_called_with("target")
+
+    @mock.patch.object(pylint_patcher.patcher, "Patcher")
+    @mock.patch.object(pylint_patcher.main.pylint.lint, "Run")
+    def test_with_target_and_keyword(self, mock_run, mock_patcher):
+        """
+        Check that keywords are passed on to pylint.
+        """
+        pylint_patcher.main.main(["target", "--option"], foo="bar")
+        mock_run.assert_called_with(["target", "--option"], foo="bar")
+        mock_patcher.assert_called_with("target")
