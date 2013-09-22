@@ -8,6 +8,7 @@ import pylint.lint
 from pylint_patcher import patcher
 
 class ArgumentParser(argparse.ArgumentParser):
+    """Override the error handler to ignore all errors"""
     def error(self, message):
         """Override the error handler to ignore all errors"""
         pass
