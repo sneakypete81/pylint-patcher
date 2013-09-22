@@ -20,7 +20,7 @@ kw = {'entry_points': console_script,
 
 setuptools.setup(name='pylint-patcher',
       version=__version__,
-      description="Wrapper around Pylint to allow lint exceptions to be stored in a patchfile",
+      description="Pylint addon to store lint exceptions in a patchfile.",
       long_description=open("README.rst").read(),
       author="Pete Burgers",
       url="https://github.com/sneakypete81/pylint-patcher",
