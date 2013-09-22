@@ -5,7 +5,7 @@ main.py : Pylint Patcher main console script
 import sys
 import argparse
 import pylint.lint
-from pylint_patcher import patcher
+from pylint_patcher import patcher, __version__
 
 class ArgumentParser(argparse.ArgumentParser):
     """Override the error handler to ignore all errors"""
@@ -22,7 +22,13 @@ def main(args=sys.argv[1:], **kwds):
     # Attempt to parse the Pylint target
     parser = ArgumentParser(add_help=False)
     parser.add_argument("target")
+    parser.add_argument("--version", action="store_true")
     parsed_args, _ = parser.parse_known_args(args)
+
+    if parsed_args.version:
+        print "%s: %s" % (parser.prog, __version__)
+        # Override sys.argv[0] for the Pylint version reporting
+        sys.argv[0] = "pylint"
 
     if parsed_args.target is None:
         # No target, so just print the Pylint usage docs
