@@ -2,7 +2,7 @@
 import sys
 import setuptools
 
-requires = ["pylint"]
+requires = ["pylint", "logilab-common"]
 
 console_script = """
 [console_scripts]
