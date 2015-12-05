@@ -5,7 +5,7 @@ Pylint Patcher
    :alt: Build Status
    :target: https://travis-ci.org/sneakypete81/pylint-patcher
 
-.. image:: https://pypip.in/v/pylint-patcher/badge.png
+.. image:: https://badge.fury.io/py/pylint-patcher.svg
    :alt: Python Package Index (PyPI)
    :target: https://pypi.python.org/pypi/pylint-patcher
 
