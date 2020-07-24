@@ -25,6 +25,11 @@ Pylint can be a bit noisy with false positives. By default, these can be ignored
 #) The patchfile is applied to the source before Pylint is run
 #) The patchfile is removed from the source after Pylint completes
 
+
+Alternatives
+=======================
+    https://gitlab.com/mbarkhau/pylint-ignore
+
 Installation
 ========================
 ::
